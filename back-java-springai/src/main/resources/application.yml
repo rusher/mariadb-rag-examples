@@ -1,0 +1,20 @@
+server:
+  port : 80
+spring:
+  application:
+    name: mariadb-test
+  datasource:
+    url: jdbc:mariadb://localhost/spring-ai?maxQuerySizeToLog=50000
+    username: root
+    password:
+  ai:
+    vectorstore:
+      mariadb:
+        initialize-schema: true
+        distance-type: EUCLIDEAN
+        dimensions: 1536
+    openai:
+      api-key: ${OPEN_AI_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
