@@ -10,8 +10,11 @@ set your OPENAI key to env variable OPEN_AI_KEY
 export OPEN_AI_KEY=...
 ```
 
-run the example using
+set application.yml mariadb info and set initialize-store to true in first launch
 
+
+
+run the example using
 ```
 mvn spring-boot:run 
 # or with JDBC logs 

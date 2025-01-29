@@ -11,6 +11,7 @@ import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSocket
@@ -59,7 +62,7 @@ public class RagWebsocket implements WebSocketConfigurer {
                 var chatClient = ChatClient.builder(chatModel)
                         .defaultAdvisors(
                                 new MessageChatMemoryAdvisor(chatMemory),
-                                new QuestionAnswerAdvisor(vectorStore, SearchRequest.builder().similarityThreshold(0.8d).topK(6).build()))
+                                new QuestionAnswerAdvisor(vectorStore))
                         .build();
 
                 String response = chatClient
@@ -68,14 +71,15 @@ public class RagWebsocket implements WebSocketConfigurer {
                         .call()
                         .content();
 
-                // stored in markdown
+                // markdown into HTML
                 Parser parser = Parser.builder().build();
                 Node document = parser.parse(response);
                 String render = HtmlRenderer.builder().build().render(document);
 
                 JSONObject jo = new JSONObject();
                 jo.put("html", render);
-                System.out.println(jo.toString());
+
+
                 session.sendMessage(new TextMessage(jo.toString()));
             }
         };
