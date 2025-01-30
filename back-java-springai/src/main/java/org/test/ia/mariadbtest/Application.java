@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -16,7 +16,7 @@ import org.springframework.core.io.UrlResource;
 import java.util.List;
 
 @SpringBootApplication
-@ConfigurationProperties("spring.ai.data")
+@ConfigurationPropertiesScan
 public class Application {
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
@@ -28,11 +28,12 @@ public class Application {
   @Autowired
   private VectorStore vectorStore;
 
-  private Boolean initializeStore;
+  @Autowired
+  private ConfigProperties config;
 
   @EventListener(ApplicationReadyEvent.class)
   public void init() {
-    if (initializeStore) {
+    if (config.getInitializeStore()) {
       // read and transform pdf into Documents
       Resource pdf = UrlResource.from(MARIADB_PDF_URL);
       var reader = new PagePdfDocumentReader(pdf);

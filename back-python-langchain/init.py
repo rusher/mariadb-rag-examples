@@ -6,13 +6,8 @@ import mariadb
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import os
 
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-conn_string = os.environ.get("MARIADB_URL", "mariadb+mariadbconnector://root:@localhost/langchain")
-
-file_path = (
-    "c:/temp/MariaDBServerKnowledgeBase.pdf"
-)
-
+# load PDF into documents
+file_path = ("c:/temp/MariaDBServerKnowledgeBase.pdf")
 loader = PyPDFLoader(file_path)
 pages = []
 for page in loader.lazy_load():
@@ -20,6 +15,10 @@ for page in loader.lazy_load():
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 all_splits = text_splitter.split_documents(pages)
+
+# configure MariaDB vector store, and save documents
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+conn_string = os.environ.get("MARIADB_URL", "mariadb+mariadbconnector://root:@localhost/langchain")
 
 vectorstore = MariaDBStore(
     embeddings=embeddings,

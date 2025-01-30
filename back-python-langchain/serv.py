@@ -20,7 +20,9 @@ vectorstore = MariaDBStore(
     datasource=conn_string,
     collection_name="my_docs"
 )
-retriever = vectorstore.as_retriever()
+retriever = vectorstore.as_retriever(
+    search_kwargs={"k": 6, "score_threshold": 0.8},
+)
 llm = ChatOpenAI(model="gpt-4o-mini")
 
 from langchain.prompts import ChatPromptTemplate
