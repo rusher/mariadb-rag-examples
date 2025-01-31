@@ -1,5 +1,6 @@
 package org.test.ia.mariadbtest;
 
+import jakarta.annotation.PostConstruct;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -24,6 +25,8 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,10 +37,23 @@ public class RagWebsocket implements WebSocketConfigurer {
     @Autowired
     private VectorStore vectorStore;
 
-    private ChatMemory chatMemory = new InMemoryChatMemory();
-
     @Autowired
     private ChatModel chatModel;
+
+    private ChatClient chatClient;
+
+    @PostConstruct
+    public void init() {
+        chatClient = ChatClient.builder(chatModel)
+                .defaultAdvisors(
+                        new MessageChatMemoryAdvisor(new InMemoryChatMemory()),
+                        new QuestionAnswerAdvisor(
+                                vectorStore,
+                                SearchRequest.builder()
+                                        .topK(3)
+                                        .build()))
+                .build();
+    }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -54,16 +70,12 @@ public class RagWebsocket implements WebSocketConfigurer {
 
             @Override
             protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
-                JSONObject jo2 = new JSONObject(message.getPayload());
-                JSONArray arr = jo2.getJSONArray("messages");
-                JSONObject obj = arr.getJSONObject(0);
-                String question = (String)obj.get("text");
 
-                var chatClient = ChatClient.builder(chatModel)
-                        .defaultAdvisors(
-                                new MessageChatMemoryAdvisor(chatMemory),
-                                new QuestionAnswerAdvisor(vectorStore))
-                        .build();
+                // Chat package send question as JSON
+                String question = (String) new JSONObject(message.getPayload())
+                                        .getJSONArray("messages")
+                                        .getJSONObject(0)
+                                        .get("text");
 
                 String response = chatClient
                         .prompt()
@@ -76,11 +88,8 @@ public class RagWebsocket implements WebSocketConfigurer {
                 Node document = parser.parse(response);
                 String render = HtmlRenderer.builder().build().render(document);
 
-                JSONObject jo = new JSONObject();
-                jo.put("html", render);
-
-
-                session.sendMessage(new TextMessage(jo.toString()));
+                // send back JSON response in format "{html: <response>}"
+                session.sendMessage(new TextMessage(new JSONObject().put("html", render).toString()));
             }
         };
     }

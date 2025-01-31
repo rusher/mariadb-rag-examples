@@ -37,11 +37,14 @@ public class Application {
       // read and transform pdf into Documents
       Resource pdf = UrlResource.from(MARIADB_PDF_URL);
       var reader = new PagePdfDocumentReader(pdf);
-      var splitter = new TokenTextSplitter();
+      var splitter = new TokenTextSplitter(1000, 400, 10, 5000, true);
       List<Document> documents = splitter.apply(reader.get());
+
+      System.out.println("saving ...");
 
       // save documents into vector store
       vectorStore.add(documents);
+
     }
   }
 }
