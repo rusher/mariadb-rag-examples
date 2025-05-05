@@ -1,0 +1,20 @@
+{
+  "name": "back-nodejs-langchain",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "description": "",
+  "dependencies": {
+    "@langchain/community": "^0.3.42",
+    "@langchain/textsplitters": "^0.1.0",
+    "mariadb": "^3.4.2",
+    "markdown-it": "^14.1.0",
+    "pdf-parse": "^1.1.1",
+    "ws": "^8.18.2"
+  }
+}
