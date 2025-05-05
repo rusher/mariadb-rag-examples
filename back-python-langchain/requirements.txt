@@ -1,5 +1,5 @@
 mariadb==1.1.11
-../../langchain-mariadb
+langchain-mariadb==0.0.16
 langchain-openai==0.3.2
 websockets==14.2
 pypdf==5.2.0
