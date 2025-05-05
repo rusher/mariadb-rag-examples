@@ -23,7 +23,7 @@ public class Application {
   }
 
   private static String MARIADB_PDF_URL =
-          "https://mariadb.org/wp-content/uploads/2025/01/MariaDBServerKnowledgeBase.pdf";
+          "https://mariadb.org/wp-content/uploads/2025/03/MariaDBServerKnowledgeBase.pdf";
 
   @Autowired
   private VectorStore vectorStore;
